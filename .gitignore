@@ -1,0 +1,34 @@
+﻿__pycache__/
+*.pyc
+.venv/
+node_modules/
+dist/
+.env
+*.log
+
+backend/app/infrastructure/persistence/storage/temp/*
+backend/app/infrastructure/persistence/storage/models/*
+backend/app/infrastructure/persistence/storage/validation_reports/*
+backend/app/infrastructure/persistence/storage/captures/*.json
+backend/app/infrastructure/persistence/storage/datasets/train/*.json
+backend/app/infrastructure/persistence/storage/datasets/val/*.json
+
+# RF datasets, captures and artifacts
+data/
+*.cfile
+*.h5
+*.pth
+*.pt
+training_history.png
+
+
+Add-Content .gitignore "`n# RF datasets and large captures"
+Add-Content .gitignore "data/"
+Add-Content .gitignore "*.cfile"
+Add-Content .gitignore "*.iq"
+Add-Content .gitignore "*.bin"
+Add-Content .gitignore "*.npy"
+Add-Content .gitignore "*.pkl"
+Add-Content .gitignore "*.h5"
+Add-Content .gitignore "*.pt"
+Add-Content .gitignore "*.onnx"

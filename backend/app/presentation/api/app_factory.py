@@ -7,6 +7,7 @@ from app.presentation.api.routes.dataset_routes import router as dataset_router
 from app.presentation.api.routes.training_routes import router as training_router
 from app.presentation.api.routes.validation_routes import router as validation_router
 from app.presentation.api.routes.inference_routes import router as inference_router
+from app.presentation.api.routes.legacy_routes import router as legacy_router
 from app.presentation.api.routes.model_routes import router as model_router
 
 
@@ -22,6 +23,7 @@ def create_app() -> FastAPI:
     )
 
     prefix = settings.api_prefix
+    app.include_router(legacy_router, prefix="/api")
     app.include_router(capture_router, prefix=prefix)
     app.include_router(dataset_router, prefix=prefix)
     app.include_router(training_router, prefix=prefix)

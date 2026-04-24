@@ -36,7 +36,7 @@ Directorios de datos principales:
 Desde raíz del proyecto:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -RemoteUser "assouyat" -RemoteHost "192.168.193.49"
+powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -RemoteUser "<usuario-remoto>" -RemoteHost "<host-remoto>"
 ```
 
 Si no quieres configurar SSH en ese arranque:

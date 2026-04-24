@@ -1,51 +1,35 @@
 # RF Fingerprint Platform
 
-Plataforma para captura RF, gestión de datasets, entrenamiento remoto, reentrenamiento continuo, validación e inferencia/predicción.
+Plataforma para captura de senales RF, gestion de datasets, entrenamiento remoto, reentrenamiento continuo, validacion e inferencia desde una interfaz web.
 
-## Arquitectura
+## Que permite hacer
 
-- Frontend: React + TypeScript + Vite (MVC liviano por vistas/controladores/componentes).
-- Backend: FastAPI con capas separadas (domain/application/infrastructure/presentation).
+- Capturar nuevas muestras RF para entrenamiento, validacion o prediccion.
+- Organizar y consultar datasets desde la interfaz.
+- Lanzar entrenamiento remoto de modelos.
+- Ejecutar reentrenamiento continuo con seguimiento del proceso.
+- Validar el rendimiento del modelo con datos separados.
+- Realizar inferencia y prediccion sobre nuevas capturas.
 
-## Estructura operativa
+## Arranque rapido
 
-- Backend API: `backend/app`
-- Frontend: `frontend/`
-- Scripts RF integrados: `backend/app/infrastructure/scripts/`
-- Datos locales del proyecto: `data/`
+### 1) Iniciar el backend
 
-Directorios de datos principales:
-
-- Train dataset: `data/rf_dataset`
-- Validation dataset: `data/rf_dataset_val`
-- Prediction dataset: `data/rf_dataset_predict`
-- Modelo y snapshots: `data/remote_trained_model`
-- Validación: `data/validation`
-- Inferencia: `data/inference`
-
-## URLs
-
-- Frontend: `http://localhost:5173`
-- Backend docs: `http://127.0.0.1:8000/docs`
-- Backend health: `http://127.0.0.1:8000/health`
-
-## Arranque rápido (PowerShell)
-
-### 1) Backend (con setup SSH opcional)
-
-Desde raíz del proyecto:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -RemoteUser "<usuario-remoto>" -RemoteHost "<host-remoto>"
-```
-
-Si no quieres configurar SSH en ese arranque:
+Desde la raiz del proyecto:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -SkipSshSetup
 ```
 
-### 2) Frontend
+Si necesitas preparar la conexion SSH para entrenamiento remoto, usa:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -RemoteUser "<usuario-remoto>" -RemoteHost "<host-remoto>"
+```
+
+### 2) Iniciar el frontend
+
+En otra terminal:
 
 ```powershell
 cd frontend
@@ -53,59 +37,50 @@ npm.cmd install
 npm.cmd run dev
 ```
 
-## Flujo recomendado
+## Acceso
 
-1. `Capture`: captura en `train`, `val` o `predict`.
-2. `Training`: entrenamiento remoto inicial.
-3. `Retraining`: reentrenamiento continuo con dashboard y snapshots.
-4. `Validation`: validación científica sobre subset de `val`.
-5. `Inference`: predicción sobre capturas de `predict`.
+- Frontend: `http://localhost:5173`
+- Backend API: `http://127.0.0.1:8000`
+- Documentacion interactiva del backend: `http://127.0.0.1:8000/docs`
 
-## Notas clave de entrenamiento/reentrenamiento
+## Flujo recomendado de uso
 
-- Los jobs de training/retraining/capture/validation/prediction continúan al cambiar de pestaña.
-- El botón de lanzar queda deshabilitado mientras el job está en `running`.
-- El reentrenamiento ahora snapshottea el modelo local:
-  - `before_update`
-  - `after_update`
-- Snapshots en `data/remote_trained_model/versions`.
+1. Captura datos en `train`, `val` o `predict`.
+2. Revisa el dataset disponible.
+3. Ejecuta un entrenamiento inicial remoto.
+4. Usa reentrenamiento para incorporar nuevas muestras.
+5. Valida el modelo antes de pasar a inferencia.
+6. Lanza predicciones sobre nuevas capturas.
 
-## SSH para entrenamiento remoto
+## Modulos principales
 
-Para evitar bloqueos en training remoto, se recomienda clave SSH sin password interactivo.
+- `Capture`: adquisicion de nuevas muestras RF.
+- `Dataset`: consulta y gestion de datos disponibles.
+- `Training`: entrenamiento inicial del modelo.
+- `Retraining`: actualizacion iterativa del modelo.
+- `Validation`: evaluacion del rendimiento.
+- `Inference`: clasificacion o verificacion sobre nuevas senales.
+- `Models`: consulta del modelo activo y sus versiones.
 
-El deploy remoto usa modo batch (sin prompt), por lo que si no hay clave válida fallará rápido en lugar de quedarse colgado.
+## Requisitos generales
 
-## Git y artefactos
+- Windows PowerShell
+- Python disponible para el backend
+- Node.js y npm para el frontend
+- Acceso SSH al entorno remoto si vas a usar entrenamiento remoto
 
-No se deben versionar capturas ni artefactos de entrenamiento.
-
-Ejemplos ignorados:
-
-- `data/`
-- `*.cfile`, `*.pt`, `*.pth`, `*.h5`, `*.tar.gz`
-
-## Troubleshooting rápido
+## Incidencias comunes
 
 ### PowerShell bloquea `npm`
 
-Usa `npm.cmd`:
+Usa `npm.cmd` en lugar de `npm`:
 
 ```powershell
 npm.cmd install
 npm.cmd run dev
 ```
 
-### `No module named 'app'`
-
-Arranca `uvicorn` desde `backend`:
-
-```powershell
-cd backend
-C:\Users\Usuario\radioconda\python.exe -m uvicorn app.main:app --reload --port 8000
-```
-
-### Vite/esbuild `spawn EPERM`
+### Vite o esbuild no arrancan correctamente
 
 ```powershell
 cd frontend

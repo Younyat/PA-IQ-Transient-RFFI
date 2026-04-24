@@ -1,86 +1,49 @@
-# Backend README
+# Backend
+
+Servicio API de RF Fingerprint Platform. Expone las operaciones necesarias para captura, gestion de datasets, entrenamiento, reentrenamiento, validacion e inferencia.
+
+## Arranque recomendado
+
+Desde la raiz del proyecto:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -SkipSshSetup
+```
+
+Si necesitas habilitar la conexion para entrenamiento remoto:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\start_backend.ps1 -RemoteUser "<usuario-remoto>" -RemoteHost "<host-remoto>"
+```
+
+## URL local
+
+- API base: `http://127.0.0.1:8000`
+- Documentacion interactiva: `http://127.0.0.1:8000/docs`
+- Health check: `http://127.0.0.1:8000/health`
+
+## Capacidades del servicio
+
+- Gestion de capturas RF.
+- Consulta y administracion de datasets.
+- Lanzamiento de entrenamiento remoto.
+- Reentrenamiento del modelo con nuevas muestras.
+- Validacion del rendimiento del modelo.
+- Inferencia y prediccion sobre capturas nuevas.
+- Exposicion de estado y resultados para la interfaz web.
 
 ## Requisitos
 
-- Python: `C:\Users\Usuario\radioconda\python.exe`
-- Dependencias: `..\requirements.txt`
+- Python compatible con las dependencias del proyecto
+- Dependencias instaladas desde `requirements.txt`
+- Acceso SSH al entorno remoto si se usa entrenamiento remoto
 
-## Arranque
+## Alternativa manual
+
+Si prefieres arrancarlo sin el script:
 
 ```powershell
-cd C:\Users\Usuario\Desktop\NICS\TrasDetector\rf-fingerprint-platform\backend
-C:\Users\Usuario\radioconda\python.exe -m pip install -r ..\requirements.txt
-C:\Users\Usuario\radioconda\python.exe -m uvicorn app.main:app --reload --port 8000
+cd backend
+python -m pip install -r ..\requirements.txt
+python -m uvicorn app.main:app --reload --port 8000
 ```
-
-## Endpoints principales
-
-### Capture
-
-- `POST /api/rf/captures`
-- `POST /api/rf/captures/start`
-- `GET /api/rf/captures/status?job_id=...`
-- `GET /api/rf/captures`
-- `GET /api/rf/captures/{id}`
-
-### Dataset
-
-- `GET /api/rf/datasets/train`
-- `GET /api/rf/datasets/val`
-- `GET /api/rf/datasets/stats`
-- `POST /api/rf/datasets/delete`
-
-### Training / Retraining
-
-- `POST /api/rf/training/start`
-- `POST /api/rf/training/retrain`
-- `GET /api/rf/training/status?job_id=...`
-- `GET /api/rf/training/models`
-- `GET /api/rf/training/dashboard`
-
-### Validation
-
-- `POST /api/rf/validation/run`
-- `POST /api/rf/validation/start`
-- `GET /api/rf/validation/status?job_id=...`
-- `GET /api/rf/validation/reports`
-
-### Inference / Prediction
-
-- `POST /api/rf/inference/classify`
-- `POST /api/rf/inference/verify`
-- `GET /api/rf/inference/predict/captures`
-- `POST /api/rf/inference/predict/start`
-- `GET /api/rf/inference/predict/status?job_id=...`
-
-### Models
-
-- `GET /api/rf/models/current`
-- `GET /api/rf/models/{version}`
-
-## Directorios de datos usados por backend
-
-- Scripts RF: `app/infrastructure/scripts`
-- Train: `../data/rf_dataset`
-- Validation: `../data/rf_dataset_val`
-- Prediction: `../data/rf_dataset_predict`
-- Modelo activo y snapshots: `../data/remote_trained_model`
-- Validación: `../data/validation`
-- Inferencia: `../data/inference`
-
-## Reentrenamiento sin pérdida de historial
-
-El deploy remoto crea snapshots automáticos en:
-
-- `data/remote_trained_model/versions/<timestamp>-before_update`
-- `data/remote_trained_model/versions/<timestamp>-after_update`
-
-Índice de versiones:
-
-- `data/remote_trained_model/versions/index.json`
-
-## SSH remoto
-
-El deploy remoto está en modo batch (`BatchMode=yes`), por lo que requiere autenticación por clave.
-
-Si no hay clave válida, el proceso falla rápido (no se queda bloqueado esperando password).

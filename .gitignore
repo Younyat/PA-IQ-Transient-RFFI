@@ -13,6 +13,16 @@ backend/app/infrastructure/persistence/storage/captures/*.json
 backend/app/infrastructure/persistence/storage/datasets/train/*.json
 backend/app/infrastructure/persistence/storage/datasets/val/*.json
 
+
+
+data\inference/*
+data\remote_trained_model/*
+data\rf_dataset/*
+data\rf_dataset_predict/*
+data\rf_dataset_val/*
+data\validation/*
+
+
 # RF datasets, captures and artifacts
 data/
 *.cfile

@@ -5,6 +5,11 @@ from app.infrastructure.di.container import get_container
 router = APIRouter(prefix="/models", tags=["models"])
 
 
+@router.get("/overview")
+def overview(container=Depends(get_container)):
+    return container.model_controller.overview()
+
+
 @router.get("/current")
 def current(container=Depends(get_container)):
     data = container.model_controller.current()

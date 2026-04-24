@@ -16,6 +16,7 @@ from app.application.use_cases.inference.get_prediction_job_status_use_case impo
 from app.application.use_cases.inference.list_prediction_captures_use_case import ListPredictionCapturesUseCase
 from app.application.use_cases.inference.start_prediction_job_use_case import StartPredictionJobUseCase
 from app.application.use_cases.inference.verify_capture_use_case import VerifyCaptureUseCase
+from app.application.use_cases.model.get_model_overview_use_case import GetModelOverviewUseCase
 from app.application.use_cases.training.get_training_status_use_case import GetTrainingStatusUseCase
 from app.application.use_cases.training.get_retraining_dashboard_use_case import GetRetrainingDashboardUseCase
 from app.application.use_cases.training.launch_remote_training_use_case import LaunchRemoteTrainingUseCase
@@ -123,6 +124,11 @@ def build_container() -> Container:
     list_models_uc = ListModelVersionsUseCase(model_repo)
     status_uc = GetTrainingStatusUseCase(job_manager=job_manager)
     dashboard_uc = GetRetrainingDashboardUseCase(model_output_dir=MODEL_OUTPUT_DIR)
+    model_overview_uc = GetModelOverviewUseCase(
+        model_repo=model_repo,
+        validation_repo=validation_repo,
+        model_output_dir=MODEL_OUTPUT_DIR,
+    )
 
     validate_uc = ValidateModelUseCase(
         executor=executor,
@@ -171,7 +177,7 @@ def build_container() -> Container:
             start_prediction_job_uc,
             prediction_status_uc,
         ),
-        model_controller=ModelController(model_repo),
+        model_controller=ModelController(model_repo, model_overview_uc),
         validation_repo=validation_repo,
     )
 

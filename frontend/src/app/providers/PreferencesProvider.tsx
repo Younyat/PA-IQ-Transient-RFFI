@@ -1,0 +1,355 @@
+import { PropsWithChildren, createContext, useContext, useEffect, useMemo, useState } from "react";
+
+export type Language = "es" | "en" | "ar";
+export type ThemeMode = "system" | "light" | "dark";
+
+const LANGUAGE_KEY = "rfp.language";
+const THEME_KEY = "rfp.theme";
+
+const dictionaries: Record<Language, Record<string, string>> = {
+  es: {
+    "app.title": "RF Fingerprint Platform",
+    "app.subtitle": "Captura, entrenamiento, validación e inferencia de huella RF",
+    "nav.dashboard": "Inicio",
+    "nav.capture": "Captura",
+    "nav.dataset": "Dataset",
+    "nav.training": "Entrenamiento",
+    "nav.retraining": "Reentrenamiento",
+    "nav.validation": "Validación",
+    "nav.inference": "Predicción",
+    "nav.models": "Modelos",
+    "prefs.language": "Idioma",
+    "prefs.theme": "Tema",
+    "prefs.language.es": "Español",
+    "prefs.language.en": "English",
+    "prefs.language.ar": "العربية",
+    "prefs.theme.system": "Sistema",
+    "prefs.theme.light": "Claro",
+    "prefs.theme.dark": "Oscuro",
+    "dashboard.capture.title": "Capture Lab",
+    "dashboard.capture.body": "Captura señales RF y construye conjuntos para entrenamiento, validación o predicción.",
+    "dashboard.capture.cta": "Abrir captura",
+    "dashboard.training.title": "Training Lab",
+    "dashboard.training.body": "Lanza entrenamiento remoto y controla la configuración principal del modelo.",
+    "dashboard.training.cta": "Abrir entrenamiento",
+    "dashboard.retraining.title": "Continual Retraining",
+    "dashboard.retraining.body": "Actualiza el modelo manteniendo historial, snapshots y trazabilidad.",
+    "dashboard.retraining.cta": "Abrir reentrenamiento",
+    "dashboard.validation.title": "Validation Lab",
+    "dashboard.validation.body": "Evalúa el modelo con un conjunto separado y revisa métricas de rigor.",
+    "dashboard.validation.cta": "Abrir validación",
+    "dashboard.dataset.title": "Dataset Manager",
+    "dashboard.dataset.body": "Consulta estructura, cobertura y consistencia del dataset operativo.",
+    "dashboard.dataset.cta": "Abrir dataset",
+    "models.hero.title": "Model Intelligence",
+    "models.hero.body": "Estado real del modelo usado en predicción: trazabilidad, dataset de origen, reentrenos y señales de fiabilidad.",
+    "models.hero.badge": "Decision Support",
+    "models.loading": "Cargando información del modelo...",
+    "models.refresh": "Actualizar",
+    "models.empty": "Todavía no hay artefactos de modelo disponibles.",
+    "models.error": "No se pudo cargar el resumen del modelo.",
+    "models.section.overview": "Resumen ejecutivo",
+    "models.section.dataset": "Dataset de entrenamiento",
+    "models.section.training": "Historial y configuración",
+    "models.section.retraining": "Reentrenamiento y versiones",
+    "models.section.validation": "Validación y preparación para predicción",
+    "models.section.files": "Artefactos y ubicaciones",
+    "models.section.history": "Últimas épocas",
+    "models.kpi.modelSize": "Tamaño del modelo",
+    "models.kpi.devices": "Emisores aprendidos",
+    "models.kpi.records": "Capturas de entrenamiento",
+    "models.kpi.retrains": "Reentrenos",
+    "models.kpi.bestAcc": "Mejor accuracy test",
+    "models.kpi.lastAcc": "Último accuracy test",
+    "models.kpi.snapshots": "Snapshots",
+    "models.kpi.validation": "Validación disponible",
+    "models.label.path": "Ruta",
+    "models.label.multipleModels": "Múltiples modelos",
+    "models.label.latestSnapshot": "Último snapshot",
+    "models.label.trainingMode": "Modo de arranque",
+    "models.label.sampleRates": "Sample rates",
+    "models.label.centerFrequencies": "Frecuencias centrales",
+    "models.label.profiles": "Perfiles de enrolamiento",
+    "models.label.labeledDevices": "Etiquetas del modelo",
+    "models.label.validationQuality": "Calidad de validación",
+    "models.label.recordAccuracy": "Accuracy por captura",
+    "models.label.windowAccuracy": "Accuracy por ventana",
+    "models.label.acceptanceRate": "Tasa de aceptación",
+    "models.label.suspiciousRate": "Tasa sospechosa",
+    "models.label.meanDistance": "Distancia media al perfil real",
+    "models.label.margin": "Margen medio de distancia",
+    "models.label.predictionReadiness": "Preparación para predicción",
+    "models.label.status.ok": "Listo",
+    "models.label.status.missing": "Falta",
+    "models.table.epoch": "Época",
+    "models.table.trainAcc": "Train Acc",
+    "models.table.testAcc": "Test Acc",
+    "models.table.trainLoss": "Train Loss",
+    "models.table.testLoss": "Test Loss",
+    "models.table.mode": "Modo",
+    "models.table.version": "Versión",
+    "models.table.reason": "Motivo",
+    "models.table.created": "Fecha UTC",
+    "models.table.snapshotDir": "Directorio",
+    "models.table.file": "Archivo",
+    "models.table.size": "Tamaño",
+    "models.note.predictionReady": "El modelo tiene los artefactos mínimos para inferencia.",
+    "models.note.predictionRisk": "Faltan artefactos clave o validación reciente. Conviene revisar antes de usarlo en predicción.",
+    "models.note.noValidation": "No hay una validación registrada para este modelo.",
+  },
+  en: {
+    "app.title": "RF Fingerprint Platform",
+    "app.subtitle": "RF fingerprint capture, training, validation, and inference",
+    "nav.dashboard": "Home",
+    "nav.capture": "Capture",
+    "nav.dataset": "Dataset",
+    "nav.training": "Training",
+    "nav.retraining": "Retraining",
+    "nav.validation": "Validation",
+    "nav.inference": "Inference",
+    "nav.models": "Models",
+    "prefs.language": "Language",
+    "prefs.theme": "Theme",
+    "prefs.language.es": "Español",
+    "prefs.language.en": "English",
+    "prefs.language.ar": "العربية",
+    "prefs.theme.system": "System",
+    "prefs.theme.light": "Light",
+    "prefs.theme.dark": "Dark",
+    "dashboard.capture.title": "Capture Lab",
+    "dashboard.capture.body": "Capture RF signals and build training, validation, or prediction sets.",
+    "dashboard.capture.cta": "Open capture",
+    "dashboard.training.title": "Training Lab",
+    "dashboard.training.body": "Launch remote training and control the main model configuration.",
+    "dashboard.training.cta": "Open training",
+    "dashboard.retraining.title": "Continual Retraining",
+    "dashboard.retraining.body": "Update the model while preserving history, snapshots, and traceability.",
+    "dashboard.retraining.cta": "Open retraining",
+    "dashboard.validation.title": "Validation Lab",
+    "dashboard.validation.body": "Evaluate the model on a separate set and review rigorous metrics.",
+    "dashboard.validation.cta": "Open validation",
+    "dashboard.dataset.title": "Dataset Manager",
+    "dashboard.dataset.body": "Inspect structure, coverage, and operational consistency of the dataset.",
+    "dashboard.dataset.cta": "Open dataset",
+    "models.hero.title": "Model Intelligence",
+    "models.hero.body": "Real status of the model used for prediction: lineage, training dataset, retraining history, and reliability signals.",
+    "models.hero.badge": "Decision Support",
+    "models.loading": "Loading model information...",
+    "models.refresh": "Refresh",
+    "models.empty": "No model artifacts are available yet.",
+    "models.error": "Could not load the model summary.",
+    "models.section.overview": "Executive summary",
+    "models.section.dataset": "Training dataset",
+    "models.section.training": "History and configuration",
+    "models.section.retraining": "Retraining and versions",
+    "models.section.validation": "Validation and prediction readiness",
+    "models.section.files": "Artifacts and locations",
+    "models.section.history": "Latest epochs",
+    "models.kpi.modelSize": "Model size",
+    "models.kpi.devices": "Learned emitters",
+    "models.kpi.records": "Training captures",
+    "models.kpi.retrains": "Retrains",
+    "models.kpi.bestAcc": "Best test accuracy",
+    "models.kpi.lastAcc": "Latest test accuracy",
+    "models.kpi.snapshots": "Snapshots",
+    "models.kpi.validation": "Validation available",
+    "models.label.path": "Path",
+    "models.label.multipleModels": "Multiple models",
+    "models.label.latestSnapshot": "Latest snapshot",
+    "models.label.trainingMode": "Start mode",
+    "models.label.sampleRates": "Sample rates",
+    "models.label.centerFrequencies": "Center frequencies",
+    "models.label.profiles": "Enrollment profiles",
+    "models.label.labeledDevices": "Model labels",
+    "models.label.validationQuality": "Validation quality",
+    "models.label.recordAccuracy": "Record accuracy",
+    "models.label.windowAccuracy": "Window accuracy",
+    "models.label.acceptanceRate": "Acceptance rate",
+    "models.label.suspiciousRate": "Suspicious rate",
+    "models.label.meanDistance": "Mean distance to true profile",
+    "models.label.margin": "Mean distance margin",
+    "models.label.predictionReadiness": "Prediction readiness",
+    "models.label.status.ok": "Ready",
+    "models.label.status.missing": "Missing",
+    "models.table.epoch": "Epoch",
+    "models.table.trainAcc": "Train Acc",
+    "models.table.testAcc": "Test Acc",
+    "models.table.trainLoss": "Train Loss",
+    "models.table.testLoss": "Test Loss",
+    "models.table.mode": "Mode",
+    "models.table.version": "Version",
+    "models.table.reason": "Reason",
+    "models.table.created": "UTC date",
+    "models.table.snapshotDir": "Directory",
+    "models.table.file": "File",
+    "models.table.size": "Size",
+    "models.note.predictionReady": "The model has the minimum artifacts required for inference.",
+    "models.note.predictionRisk": "Key artifacts or recent validation are missing. Review before using it for prediction.",
+    "models.note.noValidation": "There is no recorded validation run for this model.",
+  },
+  ar: {
+    "app.title": "منصة بصمة الترددات الراديوية",
+    "app.subtitle": "التقاط وتدريب وتحقق واستدلال لبصمة RF",
+    "nav.dashboard": "الرئيسية",
+    "nav.capture": "الالتقاط",
+    "nav.dataset": "البيانات",
+    "nav.training": "التدريب",
+    "nav.retraining": "إعادة التدريب",
+    "nav.validation": "التحقق",
+    "nav.inference": "التنبؤ",
+    "nav.models": "النماذج",
+    "prefs.language": "اللغة",
+    "prefs.theme": "السمة",
+    "prefs.language.es": "Español",
+    "prefs.language.en": "English",
+    "prefs.language.ar": "العربية",
+    "prefs.theme.system": "النظام",
+    "prefs.theme.light": "فاتح",
+    "prefs.theme.dark": "داكن",
+    "dashboard.capture.title": "مختبر الالتقاط",
+    "dashboard.capture.body": "التقط إشارات RF وأنشئ مجموعات للتدريب أو التحقق أو التنبؤ.",
+    "dashboard.capture.cta": "فتح الالتقاط",
+    "dashboard.training.title": "مختبر التدريب",
+    "dashboard.training.body": "شغّل التدريب البعيد وتحكم في إعدادات النموذج الأساسية.",
+    "dashboard.training.cta": "فتح التدريب",
+    "dashboard.retraining.title": "إعادة التدريب المستمرة",
+    "dashboard.retraining.body": "حدّث النموذج مع الحفاظ على السجل واللقطات وإمكانية التتبع.",
+    "dashboard.retraining.cta": "فتح إعادة التدريب",
+    "dashboard.validation.title": "مختبر التحقق",
+    "dashboard.validation.body": "قيّم النموذج على مجموعة منفصلة وراجع المقاييس المهمة.",
+    "dashboard.validation.cta": "فتح التحقق",
+    "dashboard.dataset.title": "إدارة البيانات",
+    "dashboard.dataset.body": "راجع البنية والتغطية والاتساق التشغيلي لمجموعة البيانات.",
+    "dashboard.dataset.cta": "فتح البيانات",
+    "models.hero.title": "ذكاء النموذج",
+    "models.hero.body": "الحالة الفعلية للنموذج المستخدم في التنبؤ: النسب، بيانات التدريب، سجل إعادة التدريب، وإشارات الموثوقية.",
+    "models.hero.badge": "دعم القرار",
+    "models.loading": "جار تحميل معلومات النموذج...",
+    "models.refresh": "تحديث",
+    "models.empty": "لا توجد آثار نموذج متاحة بعد.",
+    "models.error": "تعذر تحميل ملخص النموذج.",
+    "models.section.overview": "ملخص تنفيذي",
+    "models.section.dataset": "بيانات التدريب",
+    "models.section.training": "السجل والإعدادات",
+    "models.section.retraining": "إعادة التدريب والإصدارات",
+    "models.section.validation": "التحقق والاستعداد للتنبؤ",
+    "models.section.files": "الملفات والمواقع",
+    "models.section.history": "أحدث الحقب",
+    "models.kpi.modelSize": "حجم النموذج",
+    "models.kpi.devices": "الأجهزة المتعلمة",
+    "models.kpi.records": "لقطات التدريب",
+    "models.kpi.retrains": "مرات إعادة التدريب",
+    "models.kpi.bestAcc": "أفضل دقة اختبار",
+    "models.kpi.lastAcc": "آخر دقة اختبار",
+    "models.kpi.snapshots": "اللقطات",
+    "models.kpi.validation": "توفر التحقق",
+    "models.label.path": "المسار",
+    "models.label.multipleModels": "نماذج متعددة",
+    "models.label.latestSnapshot": "أحدث لقطة",
+    "models.label.trainingMode": "نمط البدء",
+    "models.label.sampleRates": "معدلات العينة",
+    "models.label.centerFrequencies": "الترددات المركزية",
+    "models.label.profiles": "ملفات التسجيل",
+    "models.label.labeledDevices": "تسميات النموذج",
+    "models.label.validationQuality": "جودة التحقق",
+    "models.label.recordAccuracy": "دقة السجل",
+    "models.label.windowAccuracy": "دقة النافذة",
+    "models.label.acceptanceRate": "معدل القبول",
+    "models.label.suspiciousRate": "المعدل المشبوه",
+    "models.label.meanDistance": "متوسط المسافة للملف الصحيح",
+    "models.label.margin": "متوسط هامش المسافة",
+    "models.label.predictionReadiness": "الاستعداد للتنبؤ",
+    "models.label.status.ok": "جاهز",
+    "models.label.status.missing": "مفقود",
+    "models.table.epoch": "الحقبة",
+    "models.table.trainAcc": "دقة التدريب",
+    "models.table.testAcc": "دقة الاختبار",
+    "models.table.trainLoss": "خسارة التدريب",
+    "models.table.testLoss": "خسارة الاختبار",
+    "models.table.mode": "النمط",
+    "models.table.version": "الإصدار",
+    "models.table.reason": "السبب",
+    "models.table.created": "تاريخ UTC",
+    "models.table.snapshotDir": "الدليل",
+    "models.table.file": "الملف",
+    "models.table.size": "الحجم",
+    "models.note.predictionReady": "يحتوي النموذج على الحد الأدنى من الملفات المطلوبة للاستدلال.",
+    "models.note.predictionRisk": "هناك ملفات أساسية أو تحقق حديث مفقود. راجع النموذج قبل استخدامه للتنبؤ.",
+    "models.note.noValidation": "لا توجد عملية تحقق مسجلة لهذا النموذج.",
+  },
+};
+
+interface PreferencesContextValue {
+  language: Language;
+  setLanguage: (language: Language) => void;
+  theme: ThemeMode;
+  setTheme: (theme: ThemeMode) => void;
+  resolvedTheme: "light" | "dark";
+  dir: "ltr" | "rtl";
+  t: (key: string, fallback?: string) => string;
+}
+
+const PreferencesContext = createContext<PreferencesContextValue | null>(null);
+
+function getStoredLanguage(): Language {
+  const value = localStorage.getItem(LANGUAGE_KEY);
+  return value === "en" || value === "ar" ? value : "es";
+}
+
+function getStoredTheme(): ThemeMode {
+  const value = localStorage.getItem(THEME_KEY);
+  return value === "light" || value === "dark" || value === "system" ? value : "system";
+}
+
+function resolveTheme(mode: ThemeMode): "light" | "dark" {
+  if (mode === "light" || mode === "dark") return mode;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+export function PreferencesProvider({ children }: PropsWithChildren) {
+  const [language, setLanguage] = useState<Language>(getStoredLanguage);
+  const [theme, setTheme] = useState<ThemeMode>(getStoredTheme);
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(() => resolveTheme(getStoredTheme()));
+
+  useEffect(() => {
+    localStorage.setItem(LANGUAGE_KEY, language);
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+  }, [language]);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme);
+    const apply = () => setResolvedTheme(resolveTheme(theme));
+    apply();
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, [theme]);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = resolvedTheme;
+  }, [resolvedTheme]);
+
+  const value = useMemo<PreferencesContextValue>(() => {
+    const t = (key: string, fallback?: string) => dictionaries[language][key] ?? fallback ?? key;
+    return {
+      language,
+      setLanguage,
+      theme,
+      setTheme,
+      resolvedTheme,
+      dir: language === "ar" ? "rtl" : "ltr",
+      t,
+    };
+  }, [language, theme, resolvedTheme]);
+
+  return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;
+}
+
+export function usePreferences() {
+  const ctx = useContext(PreferencesContext);
+  if (!ctx) {
+    throw new Error("usePreferences must be used inside PreferencesProvider");
+  }
+  return ctx;
+}

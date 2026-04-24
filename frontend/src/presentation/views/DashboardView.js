@@ -1,0 +1,7 @@
+import { jsx as _jsx, jsxs as _jsxs } from "react/jsx-runtime";
+import { Link } from "react-router-dom";
+import { usePreferences } from "../../app/providers/PreferencesProvider";
+export function DashboardView() {
+    const { t } = usePreferences();
+    return (_jsxs("div", { className: "grid grid-2", children: [_jsxs("div", { className: "panel", children: [_jsx("h3", { children: t("dashboard.capture.title") }), _jsx("p", { children: t("dashboard.capture.body") }), _jsx(Link, { to: "/capture", children: t("dashboard.capture.cta") })] }), _jsxs("div", { className: "panel", children: [_jsx("h3", { children: t("dashboard.training.title") }), _jsx("p", { children: t("dashboard.training.body") }), _jsx(Link, { to: "/training", children: t("dashboard.training.cta") })] }), _jsxs("div", { className: "panel", children: [_jsx("h3", { children: t("dashboard.retraining.title") }), _jsx("p", { children: t("dashboard.retraining.body") }), _jsx(Link, { to: "/retraining", children: t("dashboard.retraining.cta") })] }), _jsxs("div", { className: "panel", children: [_jsx("h3", { children: t("dashboard.validation.title") }), _jsx("p", { children: t("dashboard.validation.body") }), _jsx(Link, { to: "/validation", children: t("dashboard.validation.cta") })] }), _jsxs("div", { className: "panel", children: [_jsx("h3", { children: t("dashboard.dataset.title") }), _jsx("p", { children: t("dashboard.dataset.body") }), _jsx(Link, { to: "/dataset", children: t("dashboard.dataset.cta") })] })] }));
+}
